@@ -1,0 +1,75 @@
+# implementation of card game - Memory
+
+import simplegui
+import random
+
+# helper function to initialize globals
+cards = 2*[i+1 for i in range(8)]
+exposed = [False for i in range(16)]
+state=0
+first_card=0
+second_card=0
+counter=3
+def new_game():
+    global first_card, second_card, state, exposed,counter
+    first_card=0
+    second_card=0
+    state=0
+    counter=0
+    exposed = [False for i in range(16)]
+    random.shuffle(cards) 
+
+     
+# define event handlers
+def mouseclick(pos):
+    # add game state logic here
+    global counter, state, first_card, second_card
+    new_pos = list(pos)
+    card_idx= new_pos[0]//50
+    counter+=1
+    for i in range(len(cards)):
+        if i==card_idx:
+            counter=counter+1
+            if state==0:
+                first_card=i
+                exposed[first_card]=True
+                state=1
+            elif state==1:
+                second_card=i
+                exposed[second_card]=True
+                state=2
+            elif state==2:
+                if cards[first_card]!=cards[second_card]:
+                    exposed[first_card]=False
+                    exposed[second_card]=False
+                first_card=i 
+                state=0
+                  
+                   
+                     
+                
+                       
+# cards are logically 50x100 pixels in size    
+def draw(canvas):
+    for i in range(len(cards)):
+        if exposed[i]==False:
+            canvas.draw_polygon([[50*i,0],[50*i+50,0],[50*i+50,100],[50*i,100]],8,"Red","Green")
+        else:
+            canvas.draw_text(str(cards[i]),[50*i+25,50],20,"White")
+
+
+# create frame and add a button and labels
+frame = simplegui.create_frame("Memory", 800, 100)
+frame.add_button("Reset", new_game)
+frame.add_label("Turns ="+str(counter))
+
+# register event handlers
+frame.set_mouseclick_handler(mouseclick)
+frame.set_draw_handler(draw)
+
+# get things rolling
+new_game()
+frame.start()
+
+print counter
+# Always remember to review the grading rubric
